@@ -12,23 +12,28 @@ func TestGenDiffFlatJSON(t *testing.T) {
 	filepath1 := filepath.Join("testdata", "fixture", "file1.json")
 	filepath2 := filepath.Join("testdata", "fixture", "file2.json")
 
-	got, err := code.GenDiff(filepath1, filepath2, "stylish")
-	if err != nil {
-		t.Fatalf("GenDiff() error = %v", err)
-	}
-
-	want := `{
+	assertGenDiff(t, filepath1, filepath2, `{
   - follow: false
     host: hexlet.io
   - proxy: 123.234.53.22
   - timeout: 50
   + timeout: 20
   + verbose: true
-}`
+}`)
+}
 
-	if got != want {
-		t.Errorf("GenDiff()\ngot:\n%s\nwant:\n%s", got, want)
-	}
+func TestGenDiffFlatYAML(t *testing.T) {
+	filepath1 := filepath.Join("testdata", "fixture", "file1.yml")
+	filepath2 := filepath.Join("testdata", "fixture", "file2.yml")
+
+	assertGenDiff(t, filepath1, filepath2, `{
+  - follow: false
+    host: hexlet.io
+  - proxy: 123.234.53.22
+  - timeout: 50
+  + timeout: 20
+  + verbose: true
+}`)
 }
 
 func TestGenDiffFlatJSONCases(t *testing.T) {
@@ -44,18 +49,22 @@ func TestGenDiffFlatJSONCases(t *testing.T) {
 		"common": "same"
 	}`)
 
-	got, err := code.GenDiff(filepath1, filepath2, "stylish")
-	if err != nil {
-		t.Fatalf("GenDiff() error = %v", err)
-	}
-
-	want := `{
+	assertGenDiff(t, filepath1, filepath2, `{
   + added: true
   - changed: before
   + changed: after
     common: same
   - removed: 42
-}`
+}`)
+}
+
+func assertGenDiff(t *testing.T, filepath1, filepath2, want string) {
+	t.Helper()
+
+	got, err := code.GenDiff(filepath1, filepath2, "stylish")
+	if err != nil {
+		t.Fatalf("GenDiff() error = %v", err)
+	}
 
 	if got != want {
 		t.Errorf("GenDiff()\ngot:\n%s\nwant:\n%s", got, want)

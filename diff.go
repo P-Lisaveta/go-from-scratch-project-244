@@ -4,17 +4,19 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"code/parsers"
 )
 
 // GenDiff returns a textual representation of the difference between
 // two configuration files in the requested format.
 func GenDiff(filepath1, filepath2, format string) (string, error) {
-	data1, err := Parse(filepath1)
+	data1, err := parsers.Parse(filepath1)
 	if err != nil {
 		return "", err
 	}
 
-	data2, err := Parse(filepath2)
+	data2, err := parsers.Parse(filepath2)
 	if err != nil {
 		return "", err
 	}

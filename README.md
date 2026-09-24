@@ -11,6 +11,7 @@
 
 - Go
 - [urfave/cli](https://github.com/urfave/cli)
+- [gopkg.in/yaml.v3](https://github.com/go-yaml/yaml)
 
 ## Установка
 
@@ -24,8 +25,9 @@ make build
 
 ```bash
 ./bin/gendiff testdata/fixture/file1.json testdata/fixture/file2.json
+./bin/gendiff testdata/fixture/file1.yml testdata/fixture/file2.yml
 ./bin/gendiff --format stylish testdata/fixture/file1.json testdata/fixture/file2.json
-./bin/gendiff -f stylish testdata/fixture/file1.json testdata/fixture/file2.json
+./bin/gendiff -f stylish testdata/fixture/file1.yml testdata/fixture/file2.yml
 ```
 
 ## Разработка
@@ -44,14 +46,16 @@ COVERAGE_MIN=95 make test-coverage
 
 ## Демонстрация
 
-Аскинема с примером сравнения плоских JSON-файлов:
+Аскинемы с примерами сравнения плоских конфигураций:
 
-[![gendiff demo](https://img.shields.io/badge/asciinema-gendiff-blue)](docs/gendiff-flat-json.cast)
+- [JSON](docs/gendiff-flat-json.cast)
+- [YAML](docs/gendiff-flat-yaml.cast)
 
 Просмотреть локальную запись можно командой:
 
 ```bash
 asciinema play docs/gendiff-flat-json.cast
+asciinema play docs/gendiff-flat-yaml.cast
 ```
 
 ---
