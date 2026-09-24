@@ -1,6 +1,7 @@
 package code_test
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -8,7 +9,7 @@ import (
 )
 
 func TestParseJSON(t *testing.T) {
-	path := filepath.Join("tests", "fixtures", "file1.json")
+	path := filepath.Join("testdata", "fixture", "file1.json")
 
 	got, err := code.Parse(path)
 	if err != nil {
@@ -23,6 +24,36 @@ func TestParseJSON(t *testing.T) {
 	}
 	if got["follow"] != false {
 		t.Errorf("Parse() follow = %v, want false", got["follow"])
+	}
+}
+
+func TestParseJSONCaseInsensitiveExtension(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.JSON")
+	content := `{"enabled": true}`
+
+	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	got, err := code.Parse(path)
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+
+	if got["enabled"] != true {
+		t.Errorf("Parse() enabled = %v, want true", got["enabled"])
+	}
+}
+
+func TestParseInvalidJSON(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.json")
+
+	if err := os.WriteFile(path, []byte("{invalid}"), 0o600); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	if _, err := code.Parse(path); err == nil {
+		t.Fatal("Parse() expected an error for invalid JSON")
 	}
 }
 

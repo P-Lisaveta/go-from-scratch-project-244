@@ -1,5 +1,6 @@
 # Вычислитель отличий на Go
 
+[![CI](https://github.com/P-Lisaveta/go-from-scratch-project-244/actions/workflows/ci.yml/badge.svg)](https://github.com/P-Lisaveta/go-from-scratch-project-244/actions/workflows/ci.yml)
 [![hexlet-check](https://github.com/P-Lisaveta/go-from-scratch-project-244/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/P-Lisaveta/go-from-scratch-project-244/actions/workflows/hexlet-check.yml)
 
 Консольная утилита для сравнения вложенных структур (JSON, YAML)
@@ -22,9 +23,23 @@ make build
 ## Использование
 
 ```bash
-./bin/gendiff tests/fixtures/file1.json tests/fixtures/file2.json
-./bin/gendiff --format stylish tests/fixtures/file1.json tests/fixtures/file2.json
-./bin/gendiff -f stylish tests/fixtures/file1.json tests/fixtures/file2.json
+./bin/gendiff testdata/fixture/file1.json testdata/fixture/file2.json
+./bin/gendiff --format stylish testdata/fixture/file1.json testdata/fixture/file2.json
+./bin/gendiff -f stylish testdata/fixture/file1.json testdata/fixture/file2.json
+```
+
+## Разработка
+
+```bash
+make test
+make lint
+make test-coverage
+```
+
+Минимальный порог покрытия задается переменной `COVERAGE_MIN` и по умолчанию равен `80`:
+
+```bash
+COVERAGE_MIN=95 make test-coverage
 ```
 
 ## Демонстрация
