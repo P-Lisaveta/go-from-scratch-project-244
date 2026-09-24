@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/urfave/cli/v2"
+
+	"code"
 )
 
 // formatFlag customizes help rendering so the placeholder is shown as "string".
@@ -37,6 +39,16 @@ func main() {
 			},
 		},
 		Action: func(c *cli.Context) error {
+			if c.NArg() != 2 {
+				return cli.Exit("Expected two file paths", 1)
+			}
+
+			result, err := code.GenDiff(c.Args().Get(0), c.Args().Get(1), c.String("format"))
+			if err != nil {
+				return err
+			}
+
+			fmt.Println(result)
 			return nil
 		},
 	}
