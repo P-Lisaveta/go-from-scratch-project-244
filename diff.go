@@ -2,14 +2,35 @@ package code
 
 import (
 	"fmt"
+	"reflect"
 	"sort"
-	"strings"
 
 	"code/parsers"
 )
 
+const FormatStylish = "stylish"
+
+type diffStatus int
+
+const (
+	statusUnchanged diffStatus = iota
+	statusRemoved
+	statusAdded
+	statusChanged
+	statusNested
+)
+
+type diffNode struct {
+	key      string
+	status   diffStatus
+	oldValue any
+	newValue any
+	children []diffNode
+}
+
 // GenDiff returns a textual representation of the difference between
-// two configuration files in the requested format.
+// two configuration files in the requested format. If format is empty,
+// the stylish formatter is used.
 func GenDiff(filepath1, filepath2, format string) (string, error) {
 	data1, err := parsers.Parse(filepath1)
 	if err != nil {
@@ -21,6 +42,21 @@ func GenDiff(filepath1, filepath2, format string) (string, error) {
 		return "", err
 	}
 
+	if format == "" {
+		format = FormatStylish
+	}
+
+	diff := buildDiff(data1, data2)
+
+	switch format {
+	case FormatStylish:
+		return formatStylish(diff), nil
+	default:
+		return "", fmt.Errorf("unsupported format: %s", format)
+	}
+}
+
+func buildDiff(data1, data2 map[string]any) []diffNode {
 	keys := make([]string, 0, len(data1)+len(data2))
 	seen := make(map[string]struct{}, len(data1)+len(data2))
 	for key := range data1 {
@@ -37,36 +73,31 @@ func GenDiff(filepath1, filepath2, format string) (string, error) {
 	}
 	sort.Strings(keys)
 
-	lines := make([]string, 0, len(keys))
+	nodes := make([]diffNode, 0, len(keys))
 	for _, key := range keys {
 		oldValue, inFirst := data1[key]
 		newValue, inSecond := data2[key]
+		oldMap, oldIsMap := oldValue.(map[string]any)
+		newMap, newIsMap := newValue.(map[string]any)
+
+		node := diffNode{key: key, oldValue: oldValue, newValue: newValue}
 
 		switch {
-		case inFirst && inSecond:
-			if oldValue == newValue {
-				lines = append(lines, diffLine(" ", key, oldValue))
-				continue
-			}
-			lines = append(lines, diffLine("-", key, oldValue))
-			lines = append(lines, diffLine("+", key, newValue))
-		case inFirst:
-			lines = append(lines, diffLine("-", key, oldValue))
-		case inSecond:
-			lines = append(lines, diffLine("+", key, newValue))
+		case inFirst && inSecond && oldIsMap && newIsMap:
+			node.status = statusNested
+			node.children = buildDiff(oldMap, newMap)
+		case !inFirst:
+			node.status = statusAdded
+		case !inSecond:
+			node.status = statusRemoved
+		case reflect.DeepEqual(oldValue, newValue):
+			node.status = statusUnchanged
+		default:
+			node.status = statusChanged
 		}
+
+		nodes = append(nodes, node)
 	}
 
-	return "{\n" + strings.Join(lines, "\n") + "\n}", nil
-}
-
-func diffLine(marker, key string, value any) string {
-	return fmt.Sprintf("  %s %s: %s", marker, key, formatValue(value))
-}
-
-func formatValue(value any) string {
-	if stringValue, ok := value.(string); ok {
-		return stringValue
-	}
-	return fmt.Sprintf("%v", value)
+	return nodes
 }

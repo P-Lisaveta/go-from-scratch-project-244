@@ -33,7 +33,7 @@ func main() {
 				StringFlag: &cli.StringFlag{
 					Name:    "format",
 					Aliases: []string{"f"},
-					Value:   "stylish",
+					Value:   code.FormatStylish,
 					Usage:   "output format",
 				},
 			},

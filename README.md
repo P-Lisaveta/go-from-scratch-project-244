@@ -26,6 +26,8 @@ make build
 ```bash
 ./bin/gendiff testdata/fixture/file1.json testdata/fixture/file2.json
 ./bin/gendiff testdata/fixture/file1.yml testdata/fixture/file2.yml
+./bin/gendiff testdata/fixture/nested1.json testdata/fixture/nested2.json
+./bin/gendiff testdata/fixture/nested1.yml testdata/fixture/nested2.yml
 ./bin/gendiff --format stylish testdata/fixture/file1.json testdata/fixture/file2.json
 ./bin/gendiff -f stylish testdata/fixture/file1.yml testdata/fixture/file2.yml
 ```
@@ -46,16 +48,18 @@ COVERAGE_MIN=95 make test-coverage
 
 ## Демонстрация
 
-Аскинемы с примерами сравнения плоских конфигураций:
+Аскинемы с примерами сравнения конфигураций:
 
-- [JSON](docs/gendiff-flat-json.cast)
-- [YAML](docs/gendiff-flat-yaml.cast)
+- [Плоский JSON](docs/gendiff-flat-json.cast)
+- [Плоский YAML](docs/gendiff-flat-yaml.cast)
+- [Вложенный JSON, формат stylish](docs/gendiff-nested-json.cast)
 
 Просмотреть локальную запись можно командой:
 
 ```bash
 asciinema play docs/gendiff-flat-json.cast
 asciinema play docs/gendiff-flat-yaml.cast
+asciinema play docs/gendiff-nested-json.cast
 ```
 
 ---
