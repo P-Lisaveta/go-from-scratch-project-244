@@ -11,6 +11,7 @@ import (
 const (
 	FormatStylish = formatters.StylishFormat
 	FormatPlain   = formatters.PlainFormat
+	FormatJSON    = formatters.JSONFormat
 )
 
 // GenDiff returns a textual representation of the difference between
