@@ -33,30 +33,26 @@ func TestJSON(t *testing.T) {
 		t.Fatalf("Format() error = %v", err)
 	}
 
-	want := `[
-    {
-        "key": "nested",
-        "type": "nested",
-        "children": [
-            {
-                "key": "added",
-                "type": "added",
-                "value": "value"
-            }
-        ]
-    },
-    {
-        "key": "changed",
+	want := `{
+    "changed": {
         "type": "changed",
         "oldValue": "old",
         "newValue": 42
     },
-    {
-        "key": "removed",
+    "nested": {
+        "type": "nested",
+        "children": {
+            "added": {
+                "type": "added",
+                "value": "value"
+            }
+        }
+    },
+    "removed": {
         "type": "removed",
         "value": null
     }
-]`
+}`
 
 	if got != want {
 		t.Errorf("Format() JSON\ngot:\n%s\nwant:\n%s", got, want)

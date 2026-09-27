@@ -21,7 +21,7 @@ func TestGenDiffJSON(t *testing.T) {
 		t.Fatalf("GenDiff() returned invalid JSON:\n%s", got)
 	}
 
-	var nodes []map[string]any
+	var nodes map[string]map[string]any
 	if err := json.Unmarshal([]byte(got), &nodes); err != nil {
 		t.Fatalf("json.Unmarshal() error = %v", err)
 	}
@@ -30,29 +30,35 @@ func TestGenDiffJSON(t *testing.T) {
 		t.Fatalf("GenDiff() returned %d root nodes, want 4", len(nodes))
 	}
 
-	common := nodes[0]
-	if common["key"] != "common" || common["type"] != "nested" {
+	for _, key := range []string{"common", "group1", "group2", "group3"} {
+		if _, exists := nodes[key]; !exists {
+			t.Fatalf("GenDiff() does not contain root node %q", key)
+		}
+	}
+
+	common := nodes["common"]
+	if common["type"] != "nested" {
 		t.Fatalf("unexpected common node: %#v", common)
 	}
 
-	children, ok := common["children"].([]any)
+	children, ok := common["children"].(map[string]any)
 	if !ok {
-		t.Fatalf("common.children is not an array: %#v", common["children"])
+		t.Fatalf("common.children is not an object: %#v", common["children"])
 	}
 	if len(children) != 7 {
 		t.Fatalf("common.children has %d items, want 7", len(children))
 	}
 
-	group2 := nodes[2]
-	if group2["key"] != "group2" || group2["type"] != "removed" {
+	group2 := nodes["group2"]
+	if group2["type"] != "removed" {
 		t.Fatalf("unexpected group2 node: %#v", group2)
 	}
 	if _, ok := group2["value"].(map[string]any); !ok {
 		t.Fatalf("group2.value is not an object: %#v", group2["value"])
 	}
 
-	group3 := nodes[3]
-	if group3["key"] != "group3" || group3["type"] != "added" {
+	group3 := nodes["group3"]
+	if group3["type"] != "added" {
 		t.Fatalf("unexpected group3 node: %#v", group3)
 	}
 	if _, ok := group3["value"].(map[string]any); !ok {
