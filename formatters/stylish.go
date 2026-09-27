@@ -1,4 +1,4 @@
-package code
+package formatters
 
 import (
 	"fmt"
@@ -6,11 +6,14 @@ import (
 	"strings"
 )
 
-func formatStylish(nodes []diffNode) string {
+const indentWidth = 4
+
+// Stylish formats a diff tree in stylish representation.
+func Stylish(nodes []Node) string {
 	return "{\n" + formatStylishNodes(nodes, 1) + "\n}"
 }
 
-func formatStylishNodes(nodes []diffNode, depth int) string {
+func formatStylishNodes(nodes []Node, depth int) string {
 	lines := make([]string, 0, len(nodes))
 	for _, node := range nodes {
 		lines = append(lines, formatStylishNode(node, depth)...)
@@ -18,19 +21,19 @@ func formatStylishNodes(nodes []diffNode, depth int) string {
 	return strings.Join(lines, "\n")
 }
 
-func formatStylishNode(node diffNode, depth int) []string {
-	switch node.status {
-	case statusNested:
-		return formatStylishNestedValue(" ", node.key, node.children, depth)
-	case statusRemoved:
-		return formatStylishValue("-", node.key, node.oldValue, depth)
-	case statusAdded:
-		return formatStylishValue("+", node.key, node.newValue, depth)
-	case statusChanged:
-		lines := formatStylishValue("-", node.key, node.oldValue, depth)
-		return append(lines, formatStylishValue("+", node.key, node.newValue, depth)...)
+func formatStylishNode(node Node, depth int) []string {
+	switch node.Status {
+	case StatusNested:
+		return formatStylishNestedValue(" ", node.Key, node.Children, depth)
+	case StatusRemoved:
+		return formatStylishValue("-", node.Key, node.OldValue, depth)
+	case StatusAdded:
+		return formatStylishValue("+", node.Key, node.NewValue, depth)
+	case StatusChanged:
+		lines := formatStylishValue("-", node.Key, node.OldValue, depth)
+		return append(lines, formatStylishValue("+", node.Key, node.NewValue, depth)...)
 	default:
-		return []string{formatStylishScalarLine(" ", node.key, node.newValue, depth)}
+		return []string{formatStylishScalarLine(" ", node.Key, node.NewValue, depth)}
 	}
 }
 
@@ -41,7 +44,7 @@ func formatStylishValue(marker, key string, value any, depth int) []string {
 	return []string{formatStylishScalarLine(marker, key, value, depth)}
 }
 
-func formatStylishNestedValue(marker, key string, children []diffNode, depth int) []string {
+func formatStylishNestedValue(marker, key string, children []Node, depth int) []string {
 	return formatStylishObject(marker, key, formatStylishNodes(children, depth+1), depth)
 }
 
@@ -85,5 +88,3 @@ func formatScalar(value any) string {
 		return fmt.Sprintf("%v", typedValue)
 	}
 }
-
-const indentWidth = 4

@@ -1,32 +1,17 @@
 package code
 
 import (
-	"fmt"
 	"reflect"
 	"sort"
 
+	"code/formatters"
 	"code/parsers"
 )
 
-const FormatStylish = "stylish"
-
-type diffStatus int
-
 const (
-	statusUnchanged diffStatus = iota
-	statusRemoved
-	statusAdded
-	statusChanged
-	statusNested
+	FormatStylish = formatters.StylishFormat
+	FormatPlain   = formatters.PlainFormat
 )
-
-type diffNode struct {
-	key      string
-	status   diffStatus
-	oldValue any
-	newValue any
-	children []diffNode
-}
 
 // GenDiff returns a textual representation of the difference between
 // two configuration files in the requested format. If format is empty,
@@ -43,20 +28,13 @@ func GenDiff(filepath1, filepath2, format string) (string, error) {
 	}
 
 	if format == "" {
-		format = FormatStylish
+		format = formatters.StylishFormat
 	}
 
-	diff := buildDiff(data1, data2)
-
-	switch format {
-	case FormatStylish:
-		return formatStylish(diff), nil
-	default:
-		return "", fmt.Errorf("unsupported format: %s", format)
-	}
+	return formatters.Format(buildDiff(data1, data2), format)
 }
 
-func buildDiff(data1, data2 map[string]any) []diffNode {
+func buildDiff(data1, data2 map[string]any) []formatters.Node {
 	keys := make([]string, 0, len(data1)+len(data2))
 	seen := make(map[string]struct{}, len(data1)+len(data2))
 	for key := range data1 {
@@ -73,27 +51,27 @@ func buildDiff(data1, data2 map[string]any) []diffNode {
 	}
 	sort.Strings(keys)
 
-	nodes := make([]diffNode, 0, len(keys))
+	nodes := make([]formatters.Node, 0, len(keys))
 	for _, key := range keys {
 		oldValue, inFirst := data1[key]
 		newValue, inSecond := data2[key]
 		oldMap, oldIsMap := oldValue.(map[string]any)
 		newMap, newIsMap := newValue.(map[string]any)
 
-		node := diffNode{key: key, oldValue: oldValue, newValue: newValue}
+		node := formatters.Node{Key: key, OldValue: oldValue, NewValue: newValue}
 
 		switch {
 		case inFirst && inSecond && oldIsMap && newIsMap:
-			node.status = statusNested
-			node.children = buildDiff(oldMap, newMap)
+			node.Status = formatters.StatusNested
+			node.Children = buildDiff(oldMap, newMap)
 		case !inFirst:
-			node.status = statusAdded
+			node.Status = formatters.StatusAdded
 		case !inSecond:
-			node.status = statusRemoved
+			node.Status = formatters.StatusRemoved
 		case reflect.DeepEqual(oldValue, newValue):
-			node.status = statusUnchanged
+			node.Status = formatters.StatusUnchanged
 		default:
-			node.status = statusChanged
+			node.Status = formatters.StatusChanged
 		}
 
 		nodes = append(nodes, node)

@@ -30,6 +30,8 @@ make build
 ./bin/gendiff testdata/fixture/nested1.yml testdata/fixture/nested2.yml
 ./bin/gendiff --format stylish testdata/fixture/file1.json testdata/fixture/file2.json
 ./bin/gendiff -f stylish testdata/fixture/file1.yml testdata/fixture/file2.yml
+./bin/gendiff --format plain testdata/fixture/nested1.json testdata/fixture/nested2.json
+./bin/gendiff -f plain testdata/fixture/nested1.yml testdata/fixture/nested2.yml
 ```
 
 ## Разработка
@@ -53,6 +55,7 @@ COVERAGE_MIN=95 make test-coverage
 - [Плоский JSON](docs/gendiff-flat-json.cast)
 - [Плоский YAML](docs/gendiff-flat-yaml.cast)
 - [Вложенный JSON, формат stylish](docs/gendiff-nested-json.cast)
+- [Вложенный JSON, формат plain](docs/gendiff-plain-json.cast)
 
 Просмотреть локальную запись можно командой:
 
@@ -60,6 +63,7 @@ COVERAGE_MIN=95 make test-coverage
 asciinema play docs/gendiff-flat-json.cast
 asciinema play docs/gendiff-flat-yaml.cast
 asciinema play docs/gendiff-nested-json.cast
+asciinema play docs/gendiff-plain-json.cast
 ```
 
 ---
