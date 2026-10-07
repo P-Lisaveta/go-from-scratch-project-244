@@ -3,6 +3,7 @@ package parsers_test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"code/parsers"
@@ -87,6 +88,8 @@ func TestParseCaseInsensitiveExtension(t *testing.T) {
 }
 
 func TestParseInvalidFile(t *testing.T) {
+	t.Parallel()
+
 	dir := t.TempDir()
 	tests := []struct {
 		name    string
@@ -100,12 +103,16 @@ func TestParseInvalidFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			if err := os.WriteFile(tt.path, []byte(tt.content), 0o600); err != nil {
 				t.Fatalf("WriteFile() error = %v", err)
 			}
 
 			if _, err := parsers.Parse(tt.path); err == nil {
 				t.Fatalf("Parse(%s) expected an error", tt.path)
+			} else if !strings.Contains(err.Error(), tt.path) {
+				t.Errorf("Parse(%s) error = %q, want it to contain the file path", tt.path, err)
 			}
 		})
 	}
